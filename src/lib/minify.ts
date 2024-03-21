@@ -69,7 +69,7 @@ export default async function minify(
   // 変換処理
   ffmpeg.FS("writeFile", input, new Uint8Array(await file.arrayBuffer()));
   await ffmpeg.run(...args);
-  const data = (await ffmpeg.FS("readFile", output)) as Uint8Array;
+  const data = ffmpeg.FS("readFile", output) as Uint8Array;
 
   return new File([data.buffer], output, {
     type: types[format],
