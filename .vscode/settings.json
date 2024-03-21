@@ -1,0 +1,26 @@
+{
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "vitest.enable": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": [
+    "source.fixAll.eslint",
+    "source.fixAll.stylelint"
+  ],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "css.validate": false,
+  "postcss.validate": false,
+  "stylelint.validate": ["css", "postcss", "html"],
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "prettier.documentSelectors": ["**/*.astro"],
+  "[astro]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  }
+}
