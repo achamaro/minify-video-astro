@@ -7,6 +7,7 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   site: "https://minify-video.achamaro.work",
   integrations: [react(), tailwind(), sitemap()],
+  compressHTML: true,
   server: {
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin",
