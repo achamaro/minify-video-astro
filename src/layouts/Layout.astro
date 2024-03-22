@@ -1,4 +1,6 @@
 ---
+import { ViewTransitions } from "astro:transitions";
+
 interface Props {
   heading?: string;
 }
@@ -43,6 +45,8 @@ const { heading } = Astro.props;
       gtag("js", new Date());
       gtag("config", "G-TRB8JF632V");
     </script>
+
+    <ViewTransitions />
   </head>
   <body class="font-serif selection:bg-primary-light">
     <div class="mx-auto flex min-h-dvh w-fit flex-col">

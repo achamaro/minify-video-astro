@@ -1,6 +1,10 @@
 import { createFFmpeg } from "@ffmpeg/ffmpeg";
 
 const ffmpegPromise = (async () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
   const ffmpeg = createFFmpeg({
     corePath: new URL("ffmpeg-core.js", window.location.origin).href,
     log: import.meta.env.DEV,
@@ -9,6 +13,17 @@ const ffmpegPromise = (async () => {
   await ffmpeg.load();
 
   return ffmpeg;
+})();
+
+const gifsiclePromise = (async () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  // gifsicle disabled
+  return null;
+
+  return (await import("gifsicle-wasm-browser")).default;
 })();
 
 export type Format = "gif" | "webm" | "mp4";
@@ -32,15 +47,15 @@ export default async function minify(
   onProgress?: (v: { ratio: number }) => void,
 ) {
   // パラメータを構築
-  const input = file.name;
-  const output = file.name.replace(/\.[^\.]+$/, `.${format}`);
+  const inputFilename = file.name;
+  const outputFilename = inputFilename.replace(/\.[^\.]+$/, `.${format}`);
   const args = [];
 
   if (trim) {
     args.push("-ss", String(trim[0]));
   }
 
-  args.push("-i", input);
+  args.push("-i", inputFilename);
 
   if (trim) {
     args.push("-t", String(trim[1]));
@@ -57,21 +72,51 @@ export default async function minify(
       args.push("-vf", `fps=${fps},scale=${width}:-1`);
       break;
   }
-  args.push(output);
+  args.push(outputFilename);
 
   // コアファイルの読み込み完了を待機
   const ffmpeg = await ffmpegPromise;
+  if (!ffmpeg) {
+    throw new Error("FFmpeg not created.");
+  }
 
   if (onProgress) {
     ffmpeg.setProgress(onProgress);
   }
 
   // 変換処理
-  ffmpeg.FS("writeFile", input, new Uint8Array(await file.arrayBuffer()));
+  ffmpeg.FS(
+    "writeFile",
+    inputFilename,
+    new Uint8Array(await file.arrayBuffer()),
+  );
   await ffmpeg.run(...args);
-  const data = ffmpeg.FS("readFile", output) as Uint8Array;
+  const data = ffmpeg.FS("readFile", outputFilename) as Uint8Array;
 
-  return new File([data.buffer], output, {
+  let outputFile = new File([data.buffer], outputFilename, {
     type: types[format],
   });
+
+  // gifの場合は gifsicle で圧縮する
+  if (format === "gif") {
+    const gifsicle = await gifsiclePromise;
+    if (gifsicle) {
+      outputFile = (
+        await gifsicle.run({
+          input: [
+            {
+              file: outputFile,
+              name: "1.gif",
+            },
+          ],
+          command: [`-O1 --lossy=60 1.gif -o /out/output.gif`],
+        })
+      )[0];
+      outputFile = new File([outputFile], outputFilename, {
+        type: outputFile.type,
+      });
+    }
+  }
+
+  return outputFile;
 }
