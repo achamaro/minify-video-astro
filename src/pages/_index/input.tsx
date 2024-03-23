@@ -10,7 +10,7 @@ export default function Input({ onInput }: InputProps) {
   return (
     <div>
       <Dropzone onInput={onInput} className="mx-auto" />
-      <Note className="mt-5 w-[460px]" />
+      <Note className="mt-5 max-w-[460px]" />
     </div>
   );
 }

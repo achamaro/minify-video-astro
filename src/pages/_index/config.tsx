@@ -104,10 +104,10 @@ export default memo(function Minify({ file, resetFile }: MinifyProps) {
 
   return (
     <section>
-      <div className="mb-10 h-[280px] w-full">
+      <div className="mx-auto mb-10 w-fit">
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <video
-          className="h-full w-full object-contain drop-shadow-xl"
+          className="h-[280px] object-contain drop-shadow-xl"
           ref={videoRef}
           controls
           muted

@@ -49,7 +49,9 @@ const { heading } = Astro.props;
     <ViewTransitions />
   </head>
   <body class="font-serif selection:bg-primary-light">
-    <div class="mx-auto flex min-h-dvh w-fit flex-col">
+    <div
+      class="mx-auto flex min-h-dvh w-fit max-w-full flex-col px-5 sm:max-w-[640px]"
+    >
       <header class="shrink-0 py-10 text-center">
         <hgroup>
           {
@@ -62,7 +64,7 @@ const { heading } = Astro.props;
           <h1 class="text-4xl">{heading ?? "Minify Video"}</h1>
         </hgroup>
       </header>
-      <main class="mx-auto w-fit max-w-[640px] grow">
+      <main class="mx-auto w-fit max-w-full grow">
         <slot />
       </main>
       <footer class="mt-auto flex shrink-0 items-center py-10">

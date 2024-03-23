@@ -1,4 +1,5 @@
 import { type ChangeEvent, memo, useEffect } from "react";
+
 import { cn } from "~/lib/cn";
 
 interface DropzoneProps {
@@ -41,12 +42,12 @@ export default memo(function Dropzone({ onInput, className }: DropzoneProps) {
       document.removeEventListener("drop", drop);
       window.removeEventListener("paste", paste);
     };
-  }, []);
+  }, [onInput]);
 
   return (
     <label
       className={cn(
-        "flex h-[180px] w-[360px] cursor-pointer flex-col items-center justify-center gap-2 rounded border border-dashed border-primary bg-primary-light/30 text-sm text-primary-dark transition-colors hover:bg-primary-light/20",
+        "flex h-[180px] max-w-[360px] cursor-pointer flex-col items-center justify-center gap-2 rounded border border-dashed border-primary bg-primary-light/30 text-sm text-primary-dark transition-colors hover:bg-primary-light/20",
         className,
       )}
     >
