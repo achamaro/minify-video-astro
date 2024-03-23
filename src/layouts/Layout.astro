@@ -25,11 +25,17 @@ const { heading } = Astro.props;
     <title>{heading ? `${heading} - ` : ""} Minify Video</title>
 
     <!-- Google Adsense -->
-    <script
-      is:inline
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8949303413724798"
-      crossorigin="anonymous"></script>
+    {
+      // Topページのみ広告表示
+      !heading && (
+        <script
+          is:inline
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8949303413724798"
+          crossorigin="anonymous"
+        />
+      )
+    }
 
     <!-- Google tag (gtag.js) -->
     <script
