@@ -13,7 +13,11 @@ import {
 } from "react";
 
 import { cn } from "~/lib/cn";
-import minify, { type Format, type MinifyOptions } from "~/lib/minify";
+import minify, {
+  type Format,
+  type GifsicleOptions,
+  type MinifyOptions,
+} from "~/lib/minify";
 import { metadata } from "~/lib/video";
 
 import Progress from "./progress";
@@ -24,6 +28,7 @@ interface MinifyProps {
 }
 
 const formats = ["gif", "mp4", "webm"] as const;
+const optimizeLevels = [1, 2, 3];
 
 export default memo(function Minify({ file, resetFile }: MinifyProps) {
   const [start, setStart] = useInput(0);
@@ -36,6 +41,9 @@ export default memo(function Minify({ file, resetFile }: MinifyProps) {
   const [progressOpened, setProgressOpened] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const durationRef = useRef(0);
+
+  // gifsicleオプション
+  const [gifsicleOptions, setGifsicleOptions] = useState<GifsicleOptions>();
 
   useEffect(() => {
     (async () => {
@@ -72,6 +80,7 @@ export default memo(function Minify({ file, resetFile }: MinifyProps) {
       fps: fps.value,
       width: width.value,
       format,
+      gifsicleOptions,
     };
 
     const onProgress: (v: { ratio: number }) => void = ({ ratio }) =>
@@ -105,7 +114,7 @@ export default memo(function Minify({ file, resetFile }: MinifyProps) {
         ></video>
       </div>
 
-      <dl className="[&>dt] mx-auto mt-5 grid w-fit grid-cols-[auto,1fr] items-center gap-6">
+      <dl className="mx-auto mt-5 grid w-fit grid-cols-[auto,1fr] items-center gap-6">
         <dt>形式</dt>
         <dd className="flex items-center gap-5">
           {formats.map((f) => (
@@ -156,6 +165,77 @@ export default memo(function Minify({ file, resetFile }: MinifyProps) {
           <input type="range" step={1} min={10} max={maxWidth} {...width} />
           <InputText {...width} />
         </dd>
+
+        {format === "gif" && (
+          <>
+            <dt className="self-start">
+              <button
+                className={cn(
+                  "transition-opacity hover:opacity-70",
+                  !gifsicleOptions && "opacity-40",
+                )}
+                onClick={() =>
+                  setGifsicleOptions(
+                    gifsicleOptions ? undefined : { optimize: 1, lossy: 30 },
+                  )
+                }
+              >
+                gifsicle
+              </button>
+            </dt>
+            <dd>
+              {gifsicleOptions && (
+                <dl className="mt-0.5">
+                  <dt className="text-sm text-gray-500">-O</dt>
+                  <dd className="mt-1 flex gap-5">
+                    {optimizeLevels.map((v) => (
+                      <label key={v} className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          value={v}
+                          checked={v === gifsicleOptions.optimize}
+                          onChange={() =>
+                            setGifsicleOptions((state) => ({
+                              ...state,
+                              optimize: v,
+                            }))
+                          }
+                        />
+                        {`-O${v}`}
+                      </label>
+                    ))}
+                  </dd>
+
+                  <dt className="mt-3 text-sm text-gray-500">--lossy</dt>
+                  <dd className="mt-1 flex gap-3">
+                    <input
+                      type="range"
+                      step={1}
+                      min={1}
+                      max={200}
+                      value={gifsicleOptions.lossy}
+                      onChange={(e) =>
+                        setGifsicleOptions({
+                          ...gifsicleOptions,
+                          lossy: Number(e.currentTarget.value),
+                        })
+                      }
+                    />
+                    <InputText
+                      value={gifsicleOptions.lossy}
+                      onChange={(e) =>
+                        setGifsicleOptions({
+                          ...gifsicleOptions,
+                          lossy: Number(e.currentTarget.value),
+                        })
+                      }
+                    />
+                  </dd>
+                </dl>
+              )}
+            </dd>
+          </>
+        )}
       </dl>
 
       <div className="mt-14 flex flex-col items-center">

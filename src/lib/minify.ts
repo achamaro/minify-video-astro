@@ -20,13 +20,15 @@ const gifsiclePromise = (async () => {
     return;
   }
 
-  // gifsicle disabled
-  return null;
-
   return (await import("gifsicle-wasm-browser")).default;
 })();
 
 export type Format = "gif" | "webm" | "mp4";
+
+export type GifsicleOptions = {
+  optimize?: number;
+  lossy?: number;
+};
 
 const types = {
   webm: "video/webm",
@@ -39,11 +41,12 @@ export type MinifyOptions = {
   fps: number;
   width: number;
   format: Format;
+  gifsicleOptions?: GifsicleOptions;
 };
 
 export default async function minify(
   file: File,
-  { trim, fps, width, format }: MinifyOptions,
+  { trim, fps, width, format, gifsicleOptions }: MinifyOptions,
   onProgress?: (v: { ratio: number }) => void,
 ) {
   // パラメータを構築
@@ -98,9 +101,10 @@ export default async function minify(
   });
 
   // gifの場合は gifsicle で圧縮する
-  if (format === "gif") {
+  if (format === "gif" && gifsicleOptions) {
     const gifsicle = await gifsiclePromise;
     if (gifsicle) {
+      const { optimize, lossy } = gifsicleOptions;
       outputFile = (
         await gifsicle.run({
           input: [
@@ -109,9 +113,12 @@ export default async function minify(
               name: "1.gif",
             },
           ],
-          command: [`-O1 --lossy=60 1.gif -o /out/output.gif`],
+          command: [`-O${optimize} --lossy=${lossy} 1.gif -o /out/output.gif`],
         })
       )[0];
+
+      // ファイル名を設定
+      // gifsicleで扱いにくい文字を含む可能性があるので、あとから設定する
       outputFile = new File([outputFile], outputFilename, {
         type: outputFile.type,
       });
